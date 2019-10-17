@@ -1,26 +1,37 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import SearchNavBar from "./components/navigation/SearchNavBar";
+import {
+    BrowserRouter as Router
+} from 'react-router-dom'
+import RootRoute from "./routes/RootRoute";
+import {CssBaseline} from "@material-ui/core";
+import MiniDrawerContainer from "./components/navigation/MiniDrawerContainer";
+
+
+class DebugRouter extends Router {
+    constructor(props) {
+        super(props);
+        console.log('initial history is: ', JSON.stringify(this.history, null, 2))
+        this.history.listen((location, action) => {
+            console.log(
+                `The current URL is ${location.pathname}${location.search}${location.hash}`
+            )
+            console.log(`The last navigation action was ${action}`, JSON.stringify(this.history, null, 2));
+        });
+    }
+}
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <CssBaseline>
+            <DebugRouter>
+                <MiniDrawerContainer>
+                    <RootRoute account={{yo: 'dude'}}/>
+                </MiniDrawerContainer>
+            </DebugRouter>
+        </CssBaseline>
+
+    );
 }
 
 export default App;
