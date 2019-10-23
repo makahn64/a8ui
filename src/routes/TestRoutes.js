@@ -16,6 +16,7 @@ import {
     Switch} from 'react-router-dom'
 
 import TestPage from "../pages/test/TestPage";
+import MediaUploadTestPage from "../pages/test/MediaUploadTestPage";
 
 export default function TestRoutes(props) {
 
@@ -23,6 +24,7 @@ export default function TestRoutes(props) {
         <Route path="/test" render={() => (
             <Switch>
                 <Route path="/test/basic" component={TestPage}/>
+                <Route path="/test/mediaupload" component={MediaUploadTestPage}/>
             </Switch>
         )}/>
     )

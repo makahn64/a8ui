@@ -1,6 +1,6 @@
 /*********************************
 
- File:       SortableGuestTable.js
+ File:       SortableExperienceTable.js
  Function:
  Copyright:  AppDelegates LLC
  Date:       2019-10-16
@@ -10,9 +10,8 @@
 
  **********************************/
 
-import React, {useState} from 'react';
+import React, {useState, Fragment} from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import {lighten, makeStyles} from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -22,21 +21,12 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
-import a8api from "../../services/a8api";
-import GuestAvatar from "./GuestAvatar";
 import Chip from '@material-ui/core/Chip';
 import TextField from "@material-ui/core/TextField";
-import {fullGuestFilter} from "../../services/helpers/filters";
+import {fullExperienceFilter} from "../../services/helpers/filters";
 import {Link} from 'react-router-dom'
+import {Typography} from "@material-ui/core";
 
 
 function desc(a, b, orderBy) {
@@ -64,12 +54,10 @@ function getSorting(order, orderBy) {
 }
 
 const headCells = [
-    {id: 'avatar', numeric: false, disablePadding: true, label: ''},
-    {id: 'email', numeric: false, disablePadding: false, label: 'Email'},
-    {id: 'firstName', numeric: false, disablePadding: false, label: 'First Name'},
-    {id: 'lastName', numeric: false, disablePadding: false, label: 'Last Name'},
-    {id: 'registeredAt', numeric: false, disablePadding: false, label: 'Registered At'},
-    {id: 'numExperiences', numeric: false, disablePadding: false, label: '# of Experiences'},
+    {id: 'econfkey', numeric: false, disablePadding: true, label: 'Experience Config Key'},
+    {id: 'name', numeric: false, disablePadding: true, label: 'Experience'},
+    {id: 'email', numeric: false, disablePadding: false, label: 'Guest Email(s)'},
+    {id: 'experiencedAt', numeric: false, disablePadding: false, label: 'Experienced At'}
 ];
 
 function EnhancedTableHead(props) {
@@ -152,7 +140,7 @@ const EnhancedTableToolbar = props => {
     const classes = useToolbarStyles();
     const [searchTerm, setSearchTerm] = useState('');
 
-    function handleSearchTermChanged(ev){
+    function handleSearchTermChanged(ev) {
         setSearchTerm(ev.target.value);
         props.searchTermCallback(ev.target.value);
     }
@@ -207,11 +195,11 @@ const useStyles = makeStyles(theme => ({
 const EnhancedTable = props => {
     const classes = useStyles();
     const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] =useState('calories');
+    const [orderBy, setOrderBy] = useState('calories');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
-    const rows = fullGuestFilter(props.guests, searchTerm);
+    const rows = fullExperienceFilter(props.experiences, searchTerm);
 
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
@@ -232,6 +220,13 @@ const EnhancedTable = props => {
         setPage(0);
     };
 
+    const guests = exp => {
+        if (!exp.guests || !exp.guests.length) return <span>No guests</span>;
+        return <ul>
+            { exp.guests.map(g=><li>{g.email}</li>) }
+        </ul>
+    }
+
     const searchTermChanged = newTerm => setSearchTerm(newTerm);
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -239,82 +234,83 @@ const EnhancedTable = props => {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper}>
-                <EnhancedTableToolbar searchTermCallback={searchTermChanged}/>
-                <div className={classes.tableWrapper}>
-                    <Table
-                        className={classes.table}
-                        aria-labelledby="tableTitle"
-                        size="medium"
-                        aria-label="enhanced table"
-                    >
-                        <EnhancedTableHead
-                            classes={classes}
-                            order={order}
-                            orderBy={orderBy}
-                            onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
-                        />
-                        <TableBody>
-                            {stableSort(rows, getSorting(order, orderBy))
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row, index) => {
+                {props.experiences.length ?
+                    <Fragment>
+                        <EnhancedTableToolbar searchTermCallback={searchTermChanged}/>
+                        <div className={classes.tableWrapper}>
+                            <Table
+                                className={classes.table}
+                                aria-labelledby="tableTitle"
+                                size="medium"
+                                aria-label="enhanced table"
+                            >
+                                <EnhancedTableHead
+                                    classes={classes}
+                                    order={order}
+                                    orderBy={orderBy}
+                                    onRequestSort={handleRequestSort}
+                                    rowCount={rows.length}
+                                />
+                                <TableBody>
+                                    {stableSort(rows, getSorting(order, orderBy))
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((row, index) => {
 
-                                    const labelId = `enhanced-table-checkbox-${index}`;
-
-                                    return (
-                                        <TableRow
-                                            hover
-                                            onClick={event => handleClick(event, row.uuid)}
-                                            tabIndex={-1}
-                                            key={row.id}
-                                            component={Link}
-                                            to={`/guests/${row.uuid}`}
-                                            style={{textDecoration: 'none'}}
-                                        >
-                                            <TableCell align="center">
-                                                <GuestAvatar guest={row}/>
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                {row.email}
-                                            </TableCell>
-                                            <TableCell align="left">{row.firstName}</TableCell>
-                                            <TableCell align="left">{row.lastName}</TableCell>
-                                            <TableCell align="left">{row.registeredAt}</TableCell>
-                                            <TableCell align="left"><Chip color="secondary"
-                                                                          label={row.numExperiences}/></TableCell>
+                                            return (
+                                                <TableRow
+                                                    hover
+                                                    tabIndex={-1}
+                                                    key={row.id}
+                                                    component={Link}
+                                                    to={`/experiences/${row.uuid}`}
+                                                    style={{textDecoration: 'none'}}
+                                                >
+                                                    <TableCell align="left">
+                                                        {row.configKey}
+                                                    </TableCell>
+                                                    <TableCell align="left">
+                                                        {row.name}
+                                                    </TableCell>
+                                                    <TableCell align="left">{guests(row)}</TableCell>
+                                                    <TableCell align="left">{row.experiencedAt}</TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    {emptyRows > 0 && (
+                                        <TableRow style={{height: 53 * emptyRows}}>
+                                            <TableCell colSpan={6}/>
                                         </TableRow>
-                                    );
-                                })}
-                            {emptyRows > 0 && (
-                                <TableRow style={{height: 53 * emptyRows}}>
-                                    <TableCell colSpan={6}/>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    backIconButtonProps={{
-                        'aria-label': 'previous page',
-                    }}
-                    nextIconButtonProps={{
-                        'aria-label': 'next page',
-                    }}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                        <TablePagination
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={rows.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            backIconButtonProps={{
+                                'aria-label': 'previous page',
+                            }}
+                            nextIconButtonProps={{
+                                'aria-label': 'next page',
+                            }}
+                            onChangePage={handleChangePage}
+                            onChangeRowsPerPage={handleChangeRowsPerPage}
+                        />
+                    </Fragment> : <Typography
+                        variant="subtitle1"
+                        color="textSecondary"
+                        align="center">There are no experiences to display. Get busy!</Typography>}
+
             </Paper>
         </div>
     );
 }
 
 EnhancedTable.propTypes = {
-    guests: PropTypes.array.isRequired
+    experiences: PropTypes.array.isRequired
 }
 
 export default EnhancedTable;

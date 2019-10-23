@@ -26,6 +26,7 @@ export function clearJwt(jwt){
 
 export const jwtGET = (url) => jwtRequest.get(url).then(resp=>resp.body);
 export const jwtPOST = (url, json) => jwtRequest.post(url).send(json).then(resp => resp.body);
+export const jwtMultipartPOST = url => jwtRequest.post(url);
 export const jwtPUT = (url, json) => jwtRequest.put(url).send(json).then(resp => resp.body);
 export const jwtPATCH = (url, json) => jwtRequest.patch(url).send(json).then(resp => resp.body);
 export const jwtDELETE = url => jwtRequest.delete(url).then(resp => resp.body);

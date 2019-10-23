@@ -1,6 +1,6 @@
 /*********************************
 
- File:       GuestDetailPage.js
+ File:       ExperienceDetailPage.js
  Function:
  Copyright:  AppDelegates LLC
  Date:       2019-10-16
@@ -29,14 +29,14 @@ import TableFromModel from "../../components/tables/TableFromModel";
 import JSONDrawer from "../../components/core/JSONDrawer";
 import Paper from "@material-ui/core/Paper";
 
-const GSCHEMA = {
-    email: { label: 'Email', type: 'string'},
-    firstName: { label: 'First Name', type: 'string'},
-    lastName: { label: 'Last Name', type: 'string'},
-    registeredAt: { label: 'Registered At', type: 'utctime'},
-    mobilePhone: { label: 'Phone', type: 'string'},
-    address: { label: 'Address', type: 'json'},
-    experiences: { label: 'Experiences', type: 'json'}
+const TSCHEMA = {
+    name: { label: 'Experience Name', type: 'string'},
+    configKey: { label: 'Experience Config Key', type: 'string'},
+    experiencedAt: { label: 'Experienced At', type: 'utctime'},
+    completed: { label: 'Experience Complete?', type: 'bool'},
+    guests: { label: 'Guests', type: 'json'},
+    media: { label: 'Media', type: 'json'},
+    metadata: { label: 'Metadata', type: 'json'},
 }
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -68,37 +68,35 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const GuestDetailPage = props => {
+const ExperienceDetailPage = props => {
 
     const classes = useStyles();
     const {uuid} = props.match.params;
-    const [guest, setGuest] = useState(null);
-    const [goEdit, setGoEdit] = useState(false);
-    const [goGuestHome, setGoGuestHome] = useState(false);
+    const [exp, setExp] = useState(null);
+    const [goExpHome, setGoExpHome] = useState(false);
     const [showDeleteConfirm, setDeleteConfirm] = useState(false);
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
 
 
     useEffect(() => {
-        async function getGuest() {
+        async function getExp() {
             try {
-                const g = await a8api.guests.get(uuid);
-                setGuest(g);
+                const e = await a8api.experiences.get(uuid);
+                setExp(e);
             } catch (err) {
-                props.enqueueSnackbar('Error fetching guest!', {variant: 'error'});
+                props.enqueueSnackbar('Error fetching experience!', {variant: 'error'});
                 props.enqueueSnackbar(err.message, {variant: 'error'});
             }
         }
 
-        getGuest();
+        getExp();
     }, [])
 
     function handleDelete() {
-        async function delGuest() {
+        async function delExp() {
             try {
-                await a8api.guests.destroy(guest.uuid);
+                await a8api.experiences.destroy(exp.uuid);
                 props.enqueueSnackbar('Guest deleted');
-                setGoGuestHome(true);
+                setGoExpHome(true);
             } catch (err) {
                 props.enqueueSnackbar(err.message, {variant: 'error'});
                 props.enqueueSnackbar('Error deleting guest!', {variant: 'error'});
@@ -106,59 +104,60 @@ const GuestDetailPage = props => {
             }
         }
 
-        delGuest();
+        delExp();
     }
 
-    function handleEditClose() {
-        setEditDialogOpen(false);
-    }
+    // may add in future rev
 
-    async function handleGuestEdited(editedGuest) {
-        setGuest(editedGuest);
-        setEditDialogOpen(false);
-    }
+    // function handleEditClose() {
+    //     setEditDialogOpen(false);
+    // }
 
-    if (goGuestHome) return <Redirect to={`/guests`}/>;
+    // async function handleGuestEdited(editedGuest) {
+    //     setGuest(editedGuest);
+    //     setEditDialogOpen(false);
+    // }
+
+    if (goExpHome) return <Redirect to={`/experiences`}/>;
 
     return (
-        <PageFrame heading="Guests / Detail" onDelete={() => setDeleteConfirm(true)}
-                   onEdit={() => setEditDialogOpen(true)}>
-            {guest ?
+        <PageFrame heading="Experience / Detail" onDelete={() => setDeleteConfirm(true)}>
+            {exp ?
                 <div>
                     <Paper className={classes.paper}>
-                    <TableFromModel schema={GSCHEMA} model={guest}/>
+                    <TableFromModel schema={TSCHEMA} model={exp}/>
                     </Paper>
                     <Paper className={classes.paper}>
-                        <JSONDrawer json={guest} label="Full Guest JSON"/>
+                        <JSONDrawer json={exp} label="Full Experience JSON"/>
                     </Paper>
-                        <ConfirmDialog text={`Do you really want to delete guest ${guest.email}`}
+                        <ConfirmDialog text={`Do you really want to delete experience?`}
                                    heading="Really Delete?"
                                    onConfirm={handleDelete} onDecline={() => setDeleteConfirm(false)}
                                    open={showDeleteConfirm}/>
                 </div>
                 : null}
-            <Dialog fullScreen open={editDialogOpen} onClose={handleEditClose} TransitionComponent={Transition}>
-                <AppBar className={classes.appBar}>
-                    <Toolbar>
-                        <IconButton edge="start" color="inherit" onClick={handleEditClose} aria-label="close">
-                            <CloseIcon/>
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>
-                            Edit Guest
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-                <Grid container className={classes.holder} justify="center">
-                    <Grid item>
-                        <GuestForm onAddComplete={handleGuestEdited} onAddFailed={handleEditClose}
-                                   guest={guest}/>
-                    </Grid>
-                </Grid>
-            </Dialog>
+            {/*<Dialog fullScreen open={editDialogOpen} onClose={handleEditClose} TransitionComponent={Transition}>*/}
+            {/*    <AppBar className={classes.appBar}>*/}
+            {/*        <Toolbar>*/}
+            {/*            <IconButton edge="start" color="inherit" onClick={handleEditClose} aria-label="close">*/}
+            {/*                <CloseIcon/>*/}
+            {/*            </IconButton>*/}
+            {/*            <Typography variant="h6" className={classes.title}>*/}
+            {/*                Edit Guest*/}
+            {/*            </Typography>*/}
+            {/*        </Toolbar>*/}
+            {/*    </AppBar>*/}
+            {/*    <Grid container className={classes.holder} justify="center">*/}
+            {/*        <Grid item>*/}
+            {/*            <GuestForm onAddComplete={handleGuestEdited} onAddFailed={handleEditClose}*/}
+            {/*                       guest={guest}/>*/}
+            {/*        </Grid>*/}
+            {/*    </Grid>*/}
+            {/*</Dialog>*/}
         </PageFrame>
     );
 };
 
-GuestDetailPage.propTypes = {};
+ExperienceDetailPage.propTypes = {};
 
-export default withSnackbar(GuestDetailPage);
+export default withSnackbar(ExperienceDetailPage);

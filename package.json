@@ -14,6 +14,8 @@
     "react": "^16.10.2",
     "react-chartjs-2": "^2.8.0",
     "react-dom": "^16.10.2",
+    "react-dropzone": "^10.1.10",
+    "react-holder": "^1.0.0",
     "react-json-pretty": "^2.1.0",
     "react-material-ui-form-validator": "^2.0.9",
     "react-pose": "^4.0.9",

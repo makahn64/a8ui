@@ -25,6 +25,7 @@ import ExperienceIcon from '@material-ui/icons/EmojiObjects';
 import DemoIcon from '@material-ui/icons/Apps';
 import SettingsIcon from '@material-ui/icons/Settings';
 import QueueIcon from '@material-ui/icons/Queue';
+import PermMediaIcon from '@material-ui/icons/PermMedia';
 
 import A8Logo from '../../assets/images/activ8orlogo2whitesmall.png';
 
@@ -168,9 +169,10 @@ export default function MiniDrawerContainer(props) {
                     { genDrawerItem("Guests", PersonIcon, "/guests", open)}
                     { genDrawerItem("Experiences", ExperienceIcon, "/experiences", open)}
                     { genDrawerItem("Queues", QueueIcon, "/queues", open)}
+                    { genDrawerItem("Media", PermMediaIcon, "/media", open)}
                     <Divider className={classes.divider}/>
                     { genDrawerItem("Settings", SettingsIcon, "/settings", open)}
-                    { genDrawerItem("Demos", DemoIcon, "/demos", open)}
+                    { genDrawerItem("Demos", PermMediaIcon, "/demos", open)}
                 </List>
             </Drawer>
             <main className={classes.content}>

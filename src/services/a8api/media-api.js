@@ -10,11 +10,11 @@
 
  **********************************/
 
-import {jwtDELETE, jwtGET, jwtPOST} from './jwtRequest';
+import {jwtMultipartPOST, jwtPOST} from './jwtRequest';
 import {modelUrl, API_SERVER_BASE} from "./url-base";
 import {createBaseMethods} from './apiHelpers';
 
-const MODEL_NAME = 'guests';
+const MODEL_NAME = 'media';
 const baseMethods = createBaseMethods(MODEL_NAME);
 
 const apiServerMediaUrlFor = relativeUrl => `${API_SERVER_BASE}${relativeUrl}`
@@ -36,12 +36,25 @@ const mediaDownloadUrl = id => {
 }
 
 
-const uploadMedia = async file => {
-    const fd = new FormData();
-    fd.append('file', file);
-    return jwtPOST(modelUrl('media'))
-        .send(fd)
+const uploadMedia = async ({file, metadata = {}, source = ""}) => {
+    const q = metadata ? `metadata=${JSON.stringify(metadata)}&source=${source}` : null;
+    return jwtMultipartPOST(modelUrl('media', q))
+        .attach('file', file)
         .then(data => data.body);
+};
+
+const mediaImageSize = async media => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+            resolve({ width: this.width, height: this.height });
+        };
+        img.onerror = function(error) {
+            reject(error)
+        };
+        img.src = apiServerMediaUrlFor(media.relPath);
+    })
+
 }
 
 export default {
@@ -49,5 +62,6 @@ export default {
     apiServerMediaUrlFor,
     apiServerMediaUrlFromMediaObject,
     mediaDownloadUrl,
-    uploadMedia
+    uploadMedia,
+    mediaImageSize
 }

@@ -18,7 +18,14 @@ export function createBaseMethods(modelName) {
     const create = object => jwtPOST(apiUrl(modelName), object);
     const destroy = uuid => jwtDELETE(apiUrl(`${modelName}/${uuid}`));
     const modify = (uuid, newFields) => jwtPATCH(apiUrl(`${modelName}/${uuid}`), newFields);
-    return { getAll, get, create, destroy, modify }
+    const createOrUpdate = (object) => {
+        if (!object.uuid) {
+            return jwtPOST(apiUrl(modelName), object);
+        } else {
+            return jwtPATCH(apiUrl(`${modelName}/${object.uuid}`), object);
+        }
+    };
+    return { getAll, get, create, destroy, modify, createOrUpdate }
 }
 
 export function objArrayToIds(arr) {

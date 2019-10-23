@@ -4,6 +4,8 @@ import 'typeface-roboto';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {SnackbarProvider} from "notistack";
+import 'react-json-pretty/themes/monikai.css';
+
 
 const appCore = <SnackbarProvider maxSnack={3}>
     <App/></SnackbarProvider>

@@ -1,33 +1,33 @@
 /*********************************
 
- File:       GuestHome.js
- Function:   Home Page for Guest Mgt
+ File:       MediaHomePage.js
+ Function:   Home Page for Media Mgt
  Copyright:  AppDelegates LLC
  Date:       2019-10-10
  Author:     mkahn
 
  **********************************/
 
-import React, {useState} from 'react';
-import PropTypes from 'prop-types';
-import A8Paper from "../../components/core/A8Paper";
-import {Typography, makeStyles, Paper, Grid} from "@material-ui/core";
+import React, {useEffect, useState} from 'react';
+import {Typography, makeStyles} from "@material-ui/core";
 import PageFrame from "../../components/navigation/PageFrame";
-import {Link} from 'react-router-dom';
-import GuestForm from "../../components/guests/GuestForm";
-import SortableGuestTable from "../../components/guests/SortableGuestTable";
-import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
-import Zoom from "@material-ui/core/Zoom";
 import Dialog from "@material-ui/core/Dialog";
-import AppBar from "@material-ui/core/AppBar";
+import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
 import CloseIcon from "@material-ui/icons/Close";
-import Button from "@material-ui/core/Button";
 import Slide from "@material-ui/core/Slide";
 import a8api from "../../services/a8api";
+import ExperienceConfigPanel from "../../components/experience-config/ExperienceConfigPanel";
+import SortableExperienceTable from "../../components/experiences/SortableExperienceTable";
+import ExperienceConfigForm from "../../components/experience-config/ExperienceConfigForm";
 import _ from 'lodash';
+import MediaCard from "../../components/media/MediaCard";
+import Zoom from "@material-ui/core/Zoom";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
+import AppBar from "@material-ui/core/AppBar/AppBar";
+import AddMediaForm from "../../components/media/AddMediaForm";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -60,41 +60,39 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const DemoHome = props => {
+const MediaHomePage = props => {
 
     const classes = useStyles();
+    const [media, setMedia] = useState([]);
     const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [guests, setGuests] = useState([])
 
-    React.useEffect(() => {
-        async function getGuests() {
-            try {
-                const guests = await a8api.guests.getAll();
-                // Map is needed to make sort in the table cleaner
-                setGuests(guests.map(g => ({...g, numExperiences: g.experiences.length})));
-            } catch (err) {
-                // FIXME sensible feedback needed
-                console.error('could not ge guests')
-            }
+    useEffect(() => {
+        async function getMedia() {
+            const ms = await a8api.media.getAll();
+            setMedia(ms);
         }
 
-        getGuests();
-
-    }, [])
+        getMedia();
+    }, []);
 
     function handleAddClose() {
         setAddDialogOpen(false);
     }
 
-    function handleGuestAdded(newGuest) {
+    function handleMediaAdded(newMedia) {
         // prevent doubles on edit
-        setGuests(_.uniqBy([newGuest, ...guests], 'uuid'));
+        setMedia(_.uniqBy([newMedia, ...media], 'uuid'));
         setAddDialogOpen(false);
     }
 
+    const mediaCards = media.map(m => <MediaCard media={m}/>);
+    console.log(media);
+
     return (
-        <PageFrame heading="Guests">
-            <SortableGuestTable guests={guests}/>
+        <PageFrame heading="Media">
+            <Grid container>
+            {mediaCards}
+            </Grid>
             <Zoom
                 in={true}
                 timeout={300}
@@ -114,13 +112,13 @@ const DemoHome = props => {
                             <CloseIcon/>
                         </IconButton>
                         <Typography variant="h6" className={classes.title}>
-                            Add New Guest
+                            Add Media
                         </Typography>
                     </Toolbar>
                 </AppBar>
                 <Grid container className={classes.holder} justify="center">
                     <Grid item>
-                        <GuestForm onAddComplete={handleGuestAdded} onAddFailed={handleAddClose}/>
+                        <AddMediaForm onMediaUploaded={handleMediaAdded}/>
                     </Grid>
                 </Grid>
             </Dialog>
@@ -129,14 +127,7 @@ const DemoHome = props => {
     );
 };
 
-/*
 
+MediaHomePage.propTypes = {};
 
- <A8Paper>
-                <GuestAddForm/>
-            </A8Paper>
- */
-
-DemoHome.propTypes = {};
-
-export default DemoHome;
+export default MediaHomePage;

@@ -12,7 +12,7 @@
 
 import {createBaseMethods} from './apiHelpers';
 
-const MODEL_NAME = 'experienceconfig';
+const MODEL_NAME = 'experienceconfigs';
 const baseMethods = createBaseMethods(MODEL_NAME);
 
 export default  {

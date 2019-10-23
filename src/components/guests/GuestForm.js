@@ -1,7 +1,7 @@
 /*********************************
 
- File:       GuestAddForm.js
- Function:   Adds a guest
+ File:       GuestForm.js
+ Function:   Add/Edit a guest
  Copyright:  AppDelegates LLC
  Date:       2019-10-15
  Author:     mkahn
@@ -53,10 +53,10 @@ const INITIAL_STATE = {
     experiences: [] // needed for table chip to properly show count before a reload
 }
 
-const GuestAddForm = props => {
+const GuestForm = props => {
 
     const classes = useStyles();
-    const [guest, setGuest] = React.useState(INITIAL_STATE);
+    const [guest, setGuest] = React.useState(props.guest || INITIAL_STATE);
     const formRef = React.useRef();
     const { onAddComplete, onAddFailed } = props;
 
@@ -65,15 +65,13 @@ const GuestAddForm = props => {
     };
 
     const handleSubmit = async () => {
-        console.log('handle submit');
         try {
-            const newG = await a8api.guests.create(guest);
-            setGuest(INITIAL_STATE);
-            props.enqueueSnackbar('Guest created', {variant: 'success'})
+            const newG = await a8api.guests.createOrUpdate(guest);
+            props.enqueueSnackbar('Guest saved', {variant: 'success'})
             if (onAddComplete) onAddComplete(newG);
 
         } catch (err) {
-            props.enqueueSnackbar('Guest creation error!', {variant: 'error'});
+            props.enqueueSnackbar('Guest save error!', {variant: 'error'});
             props.enqueueSnackbar(err.message, { variant: 'error'});
             if (onAddFailed) onAddFailed(err);
         }
@@ -130,7 +128,7 @@ const GuestAddForm = props => {
                 </Grid>
 
                 <Button variant="contained" color="primary" className={classes.button} type="submit">
-                    ADD GUEST
+                    { props.guest.uuid? 'SAVE' : 'ADD GUEST' }
                 </Button>
             </Paper>
         </ValidatorForm>
@@ -138,9 +136,10 @@ const GuestAddForm = props => {
     );
 };
 
-GuestAddForm.propTypes = {
+GuestForm.propTypes = {
     onAddComplete: PropTypes.func,
-    onAddFailed: PropTypes.func
+    onAddFailed: PropTypes.func,
+    guest: PropTypes.object
 };
 
-export default withSnackbar(GuestAddForm);
+export default withSnackbar(GuestForm);
