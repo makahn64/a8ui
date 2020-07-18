@@ -8,7 +8,7 @@
     "chart.js": "^2.8.0",
     "classnames": "^2.2.6",
     "faker": "^4.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "notistack": "^0.9.3",
     "react": "^16.10.2",
