@@ -5,7 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.5.0",
     "@material-ui/icons": "^4.4.3",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "classnames": "^2.2.6",
     "faker": "^4.1.0",
     "lodash": "^4.17.15",
